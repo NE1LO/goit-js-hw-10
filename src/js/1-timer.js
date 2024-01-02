@@ -4,35 +4,65 @@ import 'flatpickr/dist/flatpickr.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.css';
 
-function convertMs(ms) {
-  const second = 1000;
-  const minute = second * 60;
-  const hour = minute * 60;
-  const day = hour * 24;
-  // days
-  const days = Math.floor(ms / day);
-  // hours
-  const hours = Math.floor((ms % day) / hour);
-  // minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
-  // seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-  return { days, hours, minutes, seconds };
-}
+const convertMs = ms => {
+  const second = 1000,
+    minute = second * 60,
+    hour = minute * 60,
+    day = hour * 24;
 
-const inputTimeEl = document.querySelector('#datetime-picker');
-const btnStartEl = document.querySelector('[data-start]');
-const dataDays = document.querySelector('[data-days]');
-const dataHours = document.querySelector('[data-hours]');
-const dataMinutes = document.querySelector('[data-minutes]');
-const dataSeconds = document.querySelector('[data-seconds]');
+  const days = Math.floor(ms / day);
+  const hours = Math.floor((ms % day) / hour);
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+  return { days, hours, minutes, seconds };
+};
+
+const formatWithLeadingZero = value => `${value}`.padStart(2, '0');
+
+const dateTimePicker = document.querySelector('#datetime-picker');
+const startButton = document.querySelector('[data-start]');
+const daysElement = document.querySelector('[data-days]');
+const hoursElement = document.querySelector('[data-hours]');
+const minutesElement = document.querySelector('[data-minutes]');
+const secondsElement = document.querySelector('[data-seconds]');
 
 const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
-  onClose(selectedDates) {
-    if(selectedDates[0])
+  onClose: selectedDates => {
+    if (selectedDates[0].getTime() < Date.now()) {
+      iziToast.error({
+        message: 'Please choose a date in the future',
+        position: 'topCenter',
+        backgroundColor: 'red',
+        messageColor: '#fff',
+      });
+    } else {
+      startButton.classList.toggle('btn-inactive');
+      startButton.addEventListener('click', () => {
+        const interval = setInterval(() => {
+          const time = convertMs(selectedDates[0].getTime() - Date.now());
+          daysElement.textContent = formatWithLeadingZero(time.days);
+          hoursElement.textContent = formatWithLeadingZero(time.hours);
+          minutesElement.textContent = formatWithLeadingZero(time.minutes);
+          secondsElement.textContent = formatWithLeadingZero(time.seconds);
+          if (
+            daysElement.textContent === '00' &&
+            hoursElement.textContent === '00' &&
+            minutesElement.textContent === '00' &&
+            secondsElement.textContent === '00'
+          ) {
+            clearInterval(interval);
+          }
+        }, 1000);
+        startButton.classList.toggle('btn-inactive');
+        dateTimePicker.classList.toggle('btn-inactive');
+      });
+    }
   },
 };
+
+const timer = flatpickr('#datetime-picker', options);
