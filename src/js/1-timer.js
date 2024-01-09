@@ -27,11 +27,13 @@ const hoursElement = document.querySelector('[data-hours]');
 const minutesElement = document.querySelector('[data-minutes]');
 const secondsElement = document.querySelector('[data-seconds]');
 
+startButton.disabled = true;
 const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
+
   onClose: selectedDates => {
     if (selectedDates[0].getTime() < Date.now()) {
       iziToast.error({
@@ -41,7 +43,7 @@ const options = {
         messageColor: '#fff',
       });
     } else {
-      startButton.classList.toggle('btn-inactive');
+      startButton.disabled = false;
       startButton.addEventListener('click', () => {
         const interval = setInterval(() => {
           const time = convertMs(selectedDates[0].getTime() - Date.now());
@@ -58,8 +60,8 @@ const options = {
             clearInterval(interval);
           }
         }, 1000);
-        startButton.classList.toggle('btn-inactive');
-        dateTimePicker.classList.toggle('btn-inactive');
+        startButton.disabled = true;
+        dateTimePicker.disabled = true;
       });
     }
   },
