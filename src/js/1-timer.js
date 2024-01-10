@@ -20,8 +20,8 @@ const convertMs = ms => {
 
 const formatWithLeadingZero = value => `${value}`.padStart(2, '0');
 
-const dateTimePicker = document.querySelector('#datetime-picker');
 const startButton = document.querySelector('[data-start]');
+const dateTimePicker = document.querySelector('#datetime-picker');
 const daysElement = document.querySelector('[data-days]');
 const hoursElement = document.querySelector('[data-hours]');
 const minutesElement = document.querySelector('[data-minutes]');
